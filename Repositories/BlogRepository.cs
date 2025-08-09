@@ -19,5 +19,19 @@ namespace Blog.Repositories
             _context.Blogs.Add(blog);
             await _context.SaveChangesAsync();
         }
+
+        public async Task UpdateBlogAsync(int id, Models.Blog newBlog)
+        {
+            var blog = await _context.Blogs.FirstOrDefaultAsync(b => b.BlogId == id);
+
+            if (blog != null)
+            {
+                blog.Nome = newBlog.Nome;
+                blog.Descricao = newBlog.Descricao;
+
+                _context.Update(blog);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

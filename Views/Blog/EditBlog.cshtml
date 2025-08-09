@@ -1,10 +1,13 @@
 ﻿@model Blog
 
-<h1>Criar Blog</h1>
+<h1>Editar Blog</h1>
 <hr />
 
-<form asp-action="CreateBlog" method="post">
+<form asp-action="EditBlog" method="post">
 
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <input type="hidden" asp-for="BlogId" asp- />
     <div class="form-group">
         <label asp-for="Nome" class="control-label"></label>
         <input asp-for="Nome" class="form-control" />
@@ -17,7 +20,7 @@
     </div>
     <br />
     <div class="form-group">
-        <input type="submit" value="Create" class="btn btn-primary" />
+        <input type="submit" value="Save" class="btn btn-primary" />
     </div>
 
 </form>
