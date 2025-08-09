@@ -28,7 +28,7 @@ namespace Blog.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(UserViewModel userVM)
         {
-            if (ModelState.IsValid) return View(userVM);
+            if (!ModelState.IsValid) return View(userVM);
 
             var user = await _userManager.FindByNameAsync(userVM.UserName);
 
@@ -59,7 +59,7 @@ namespace Blog.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(UserViewModel userVM)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 User user = new User { UserName = userVM.UserName };
                 var result = await _userManager.CreateAsync(user, userVM.UserPassword);
