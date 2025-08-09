@@ -1,0 +1,12 @@
+﻿@model IEnumerable<Blog>
+
+<div class="row" style="display:flex; align-items:flex-start" >
+    <a class="btn btn-outline-success" asp-controller="Blog" asp-action="CreateBlog">Criar Um Blog</a>
+</div>
+
+<ul>
+    @foreach (var blog in Model)
+    {
+        <li>@blog.Nome, @blog.Descricao, @blog.Criacao.ToString(), @blog.Admin.UserName</li>
+    }
+</ul>

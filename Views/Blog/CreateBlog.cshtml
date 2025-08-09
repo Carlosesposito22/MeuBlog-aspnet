@@ -1,0 +1,27 @@
+﻿@model Blog
+
+@{
+    ViewData["Title"] = "Create Blog";
+}
+
+<h1>Criacao de Blog</h1>
+<hr />
+
+<form asp-action="CreateBlog" method="post">
+
+    <div class="form-group">
+        <label asp-for="Nome" class="control-label"></label>
+        <input asp-for="Nome" class="form-control" />
+        <span asp-validation-for="Nome" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Descricao" class="control-label"></label>
+        <input asp-for="Descricao" class="form-control" />
+        <span asp-validation-for="Descricao" class="text-danger"></span>
+    </div>
+    <br />
+    <div class="form-group">
+        <input type="submit" value="Create" class="btn btn-primary" />
+    </div>
+
+</form>

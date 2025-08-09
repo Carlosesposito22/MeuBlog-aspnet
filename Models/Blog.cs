@@ -9,11 +9,11 @@ namespace Blog.Models
         [Key]
         public int BlogId { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Infome um nome")]
         [StringLength(50)]
         public string Nome { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Infome uma descricao")]
         [StringLength(200)]
         public string Descricao { get; set; }
 

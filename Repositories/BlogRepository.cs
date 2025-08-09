@@ -1,5 +1,6 @@
 ﻿using Blog.Data;
 using Blog.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Repositories
 {
@@ -11,7 +12,7 @@ namespace Blog.Repositories
             _context = context;
         }
 
-        public IEnumerable<Models.Blog> Blogs => _context.Blogs;
+        public IEnumerable<Models.Blog> Blogs => _context.Blogs.Include(b => b.Admin);
 
         public async Task CreateBlogAsync(Models.Blog blog)
         {
