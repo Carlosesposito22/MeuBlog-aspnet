@@ -14,13 +14,16 @@ namespace Blog.Models
         public string Nome { get; set; }
 
         [Required]
+        [StringLength(200)]
+        public string Descricao { get; set; }
+
+        [Required]
         public DateTime Criacao { get; set; }
 
         public string UserId { get; set; }
-        public virtual User User { get; set; }
+        public virtual User Admin { get; set; }
 
         public virtual List<Postagem> Postagens { get; set; }
-
         public virtual List<InscricaoBlog> Inscritos { get; set; }
     }
 }

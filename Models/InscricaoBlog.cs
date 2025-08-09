@@ -18,6 +18,7 @@ namespace Blog.Models
         [Required]
         public DateTime DataInscricao { get; set; }
 
-        public bool IsAdmin { get; set; }
+        [Range(0, 5)]
+        public int Avaliacao { get; set; }
     }
 }
