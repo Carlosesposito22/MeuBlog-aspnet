@@ -3,6 +3,7 @@ using Blog.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Blog.Controllers
 {
@@ -18,9 +19,9 @@ namespace Blog.Controllers
             _userManager = userManager;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var blogs = _blogRepository.Blogs;
+            var blogs = await _blogRepository.FindAllAsync();
             return View(blogs);
         }
 
@@ -47,14 +48,14 @@ namespace Blog.Controllers
         }
 
         [HttpGet]
-        public IActionResult EditBlog(int? id)
+        public async Task<IActionResult> EditBlog(int? id)
         {
-            if (id == null || _blogRepository.Blogs == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var blog = _blogRepository.Blogs.Where(b => b.BlogId == id).FirstOrDefault();
+            var blog = await _blogRepository.FindByIdAsync((int)id);
 
             if (blog == null)
             {

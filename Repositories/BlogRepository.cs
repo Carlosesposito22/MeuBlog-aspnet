@@ -7,12 +7,25 @@ namespace Blog.Repositories
     public class BlogRepository : IBlogRepository
     {
         private readonly AppDbContext _context;
+
         public BlogRepository(AppDbContext context)
         {
             _context = context;
         }
 
-        public IEnumerable<Models.Blog> Blogs => _context.Blogs.Include(b => b.Admin);
+        public async Task<IEnumerable<Models.Blog>> FindAllAsync()
+        {
+            return await _context.Blogs
+                .Include(b => b.Admin)
+                .ToListAsync();
+        }
+
+        public async Task<Models.Blog> FindByIdAsync(int id)
+        {
+            return await _context.Blogs
+                .Include(b => b.Admin)
+                .FirstOrDefaultAsync(b => b.BlogId == id);
+        }
 
         public async Task CreateBlogAsync(Models.Blog blog)
         {
@@ -22,7 +35,7 @@ namespace Blog.Repositories
 
         public async Task UpdateBlogAsync(int id, Models.Blog newBlog)
         {
-            var blog = await _context.Blogs.FirstOrDefaultAsync(b => b.BlogId == id);
+            var blog = await FindByIdAsync(id);
 
             if (blog != null)
             {
