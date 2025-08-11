@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Blog.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250808032525_ModeloDeDominio")]
-    partial class ModeloDeDominio
+    [Migration("20250811033624_RefectorModelDomain")]
+    partial class RefectorModelDomain
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,6 +35,11 @@ namespace Blog.Migrations
 
                     b.Property<DateTime>("Criacao")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Nome")
                         .IsRequired()
@@ -90,14 +95,14 @@ namespace Blog.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InscricaoBlogId"));
 
+                    b.Property<int>("Avaliacao")
+                        .HasColumnType("int");
+
                     b.Property<int>("BlogId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("DataInscricao")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsAdmin")
-                        .HasColumnType("bit");
 
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
@@ -354,11 +359,11 @@ namespace Blog.Migrations
 
             modelBuilder.Entity("Blog.Models.Blog", b =>
                 {
-                    b.HasOne("Blog.Models.User", "User")
+                    b.HasOne("Blog.Models.User", "Admin")
                         .WithMany()
                         .HasForeignKey("UserId");
 
-                    b.Navigation("User");
+                    b.Navigation("Admin");
                 });
 
             modelBuilder.Entity("Blog.Models.Comentario", b =>

@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Blog.Migrations
 {
     /// <inheritdoc />
-    public partial class ModeloDeDominio : Migration
+    public partial class RefectorModelDomain : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -162,6 +163,7 @@ namespace Blog.Migrations
                     BlogId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Nome = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Descricao = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Criacao = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
@@ -184,7 +186,7 @@ namespace Blog.Migrations
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     BlogId = table.Column<int>(type: "int", nullable: false),
                     DataInscricao = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsAdmin = table.Column<bool>(type: "bit", nullable: false)
+                    Avaliacao = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
