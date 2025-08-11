@@ -1,5 +1,4 @@
 ﻿@model IEnumerable<Blog>
-@inject UserManager<User> UserManager
 
 <div class="row" style="display:flex; align-items:flex-start" >
     <a class="btn btn-outline-success" asp-controller="Blog" asp-action="CreateBlog">Criar Um Blog</a>
@@ -8,11 +7,8 @@
 <ul>
     @foreach (var blog in Model)
     {
-        <li>@blog.Nome, @blog.Admin.UserName
-            @if (@blog.Admin.Id == UserManager.GetUserId(User))
-            {
-                <a asp-action="EditBlog" asp-route-id="@blog.BlogId">, Editar</a>
-            } 
+        <li>
+            <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@blog.BlogId">Entrar</a> @blog.Nome, @blog.Admin.UserName
         </li>
     }
 </ul>

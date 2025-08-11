@@ -1,9 +1,9 @@
 ﻿using Blog.Models;
 using Blog.Repositories.Interfaces;
+using Blog.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace Blog.Controllers
 {
@@ -19,10 +19,38 @@ namespace Blog.Controllers
             _userManager = userManager;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var blogs = await _blogRepository.FindAllAsync();
             return View(blogs);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var blog = await _blogRepository.GetBlogDetailsById(id);
+
+            if ((blog == null) || (blog.Inscritos.FirstOrDefault(i => i.UserId == _userManager.GetUserId(User)) == null))
+            {
+                return NotFound();
+            }
+
+            float mediaAvaliacao = (blog.Inscritos.Sum(i => i.Avaliacao) / blog.Inscritos.Count);
+
+            var blogDetailsVM = new BlogDetailsViewModel()
+            {
+                BlogId = blog.BlogId,
+                Nome = blog.Nome,
+                Descricao = blog.Descricao,
+                Criacao = blog.Criacao,
+                AdminId = blog.UserId,
+                MediaDeAvaliacao = mediaAvaliacao,
+                QuantidadeInscritos = blog.Inscritos.Count,
+                Postagens = blog.Postagens,
+                InscricaoBlogs = blog.Inscritos
+            };
+            return View(blogDetailsVM);
         }
 
         [HttpGet]
@@ -48,21 +76,11 @@ namespace Blog.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> EditBlog(int? id)
+        public async Task<IActionResult> EditBlog(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var blog = await _blogRepository.FindByIdAsync(id);
 
-            var blog = await _blogRepository.FindByIdAsync((int)id);
-
-            if (blog == null)
-            {
-                return NotFound();
-            }
-
-            if (blog.Admin.Id != _userManager.GetUserId(User))
+            if ((blog == null) || (blog.Admin.Id != _userManager.GetUserId(User)))
             {
                 return NotFound();
             }
@@ -86,5 +104,8 @@ namespace Blog.Controllers
             }
             return View(blog);
         }
+
+        // Delete Blog mais pra frente!
+
     }
 }

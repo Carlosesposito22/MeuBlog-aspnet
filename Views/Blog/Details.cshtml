@@ -1,0 +1,15 @@
+﻿@model BlogDetailsViewModel
+@inject UserManager<User> UserManager
+
+<div>Teste de Blog Details</div>
+
+<h1>@Model.Nome</h1>
+<h1>@Model.Descricao</h1>
+<h1>@Model.Criacao</h1>
+<h1>@Model.MediaDeAvaliacao</h1>
+<h1>@Model.QuantidadeInscritos</h1>
+
+@if (Model.AdminId == UserManager.GetUserId(User))
+{
+    <a class="btn btn-outline-danger" asp-action="EditBlog" asp-route-id="@Model.BlogId">Editar</a>
+}

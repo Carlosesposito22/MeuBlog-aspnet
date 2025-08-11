@@ -4,6 +4,8 @@
     {
         Task<Models.Blog> FindByIdAsync(int id);
 
+        Task<Models.Blog> GetBlogDetailsById(int id);
+
         Task<IEnumerable<Models.Blog>> FindAllAsync();
 
         Task CreateBlogAsync(Models.Blog blog);
