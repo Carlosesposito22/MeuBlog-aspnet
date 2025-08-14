@@ -11,5 +11,7 @@
         Task CreateBlogAsync(Models.Blog blog);
 
         Task UpdateBlogAsync(int id, Models.Blog blog);
+
+        Task SubscribeUserAsync(int blogId, string userId);
     }
 }

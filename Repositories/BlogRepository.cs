@@ -1,7 +1,9 @@
 ﻿using Blog.Data;
 using Blog.Models;
 using Blog.Repositories.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace Blog.Repositories
 {
@@ -39,19 +41,9 @@ namespace Blog.Repositories
         public async Task CreateBlogAsync(Models.Blog blog)
         {
             _context.Blogs.Add(blog);
-
             await _context.SaveChangesAsync();
 
-            InscricaoBlog inscricaoDoAdmin = new InscricaoBlog()
-            {
-                UserId = blog.UserId,
-                BlogId = blog.BlogId,
-                DataInscricao = blog.Criacao,
-                Avaliacao = 0
-            };
-
-            _context.InscricoesBlog.Add(inscricaoDoAdmin);
-
+            await SubscribeUserAsync(blog.BlogId, blog.UserId);
             await _context.SaveChangesAsync();
         }
 
@@ -67,6 +59,19 @@ namespace Blog.Repositories
                 _context.Update(blog);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task SubscribeUserAsync(int blogId, string userId)
+        {
+            var subscribe = new InscricaoBlog()
+            {
+                UserId = userId,
+                BlogId = blogId,
+                DataInscricao = DateTime.Now,
+                Avaliacao = 0
+            };
+            _context.InscricoesBlog.Add(subscribe);
+            await _context.SaveChangesAsync();
         }
     }
 }

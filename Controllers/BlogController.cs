@@ -4,6 +4,7 @@ using Blog.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection.Metadata;
 
 namespace Blog.Controllers
 {
@@ -31,7 +32,7 @@ namespace Blog.Controllers
         {
             var blog = await _blogRepository.GetBlogDetailsById(id);
 
-            if ((blog == null) || (blog.Inscritos.FirstOrDefault(i => i.UserId == _userManager.GetUserId(User)) == null))
+            if ((blog == null) || (!IsUserSubscribe(blog.Inscritos)))
             {
                 return NotFound();
             }
@@ -107,5 +108,34 @@ namespace Blog.Controllers
 
         // Delete Blog mais pra frente!
 
+        [HttpGet]
+        public async Task<IActionResult> Subscribe(int id)
+        {
+            var blog = await _blogRepository.FindByIdAsync(id);
+
+            if (blog == null) return NotFound();
+
+            return View(blog);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SubscribePost(int id)
+        {
+            var blog = await _blogRepository.GetBlogDetailsById(id);
+
+            if (blog == null) return NotFound();
+
+            if (!IsUserSubscribe(blog.Inscritos))
+            {
+                await _blogRepository.SubscribeUserAsync(id, _userManager.GetUserId(User));
+            }
+            return RedirectToAction("Details", new { id });
+        }
+
+        private bool IsUserSubscribe(List<InscricaoBlog> inscricoes)
+        {
+            return (inscricoes.FirstOrDefault(i => i.UserId == _userManager.GetUserId(User)) != null);
+        }
     }
 }
