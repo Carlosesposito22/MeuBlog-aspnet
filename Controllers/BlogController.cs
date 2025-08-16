@@ -115,7 +115,7 @@ namespace Blog.Controllers
 
             if (blog == null) return NotFound();
 
-            return View(blog);
+            return PartialView("_SubscribeModalPartial", blog);
         }
 
         [HttpPost]

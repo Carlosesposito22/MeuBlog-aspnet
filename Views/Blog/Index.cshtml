@@ -1,15 +1,34 @@
 ﻿@model IEnumerable<Blog>
 
-<div class="row" style="display:flex; align-items:flex-start" >
-    <a class="btn btn-outline-success" asp-controller="Blog" asp-action="CreateBlog">Criar Um Blog</a>
+<div class="row">
+    <h1 class="col-md-6">Nossos Blogs</h1>
+    <div class="col-md-6">
+        <a class="btn btn-outline-success" asp-controller="Blog" asp-action="CreateBlog">Criar Um Blog</a>
+    </div>
 </div>
 
-<ul>
-    @foreach (var blog in Model)
-    {
-        <li>
-            <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@blog.BlogId">Entrar</a> @blog.Nome, @blog.Admin.UserName
-            <a class="btn btn-outline-success" asp-action="Subscribe" asp-route-id="@blog.BlogId">Inscrever</a>
-        </li>
-    }
-</ul>
+@foreach (var blog in Model)
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+                <h5 class="card-title">@blog.Nome</h5>
+
+                <p class="mb-0"><small class="text-muted">@blog.Admin.UserName</small></p>
+            </div>
+
+            <hr class="my-2"> <p class="card-text">@blog.Descricao</p>
+
+            <button type="button" class="btn btn-primary js-open-subscribe-modal" data-blog-id="@blog.BlogId">
+                Inscrever-se
+            </button>
+            <a asp-action="Details" asp-route-id="@blog.BlogId" class="btn btn-secondary">Ver Detalhes</a>
+        </div>
+    </div>
+}
+
+<div id="modal-placeholder"></div>
+
+@section Scripts {
+    <script src="~/js/subscribeModal.js"></script>
+}
