@@ -3,6 +3,7 @@ using Blog.Models;
 using Blog.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
 namespace Blog.Repositories
@@ -73,6 +74,18 @@ namespace Blog.Repositories
             };
             _context.InscricoesBlog.Add(subscribe);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task EvaluateBlogAsync(int blogId, string userId, int nota)
+        {
+            var inscricaoBlog = _context.InscricoesBlog
+                .FirstOrDefault(i => ((i.BlogId == blogId) && (i.UserId == userId)));
+
+            if (inscricaoBlog != null)
+            {
+                inscricaoBlog.Avaliacao = nota;
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection.Metadata;
+using System.Threading.Tasks;
 
 namespace Blog.Controllers
 {
@@ -134,7 +135,31 @@ namespace Blog.Controllers
             return RedirectToAction("Details", new { id });
         }
 
-        // === GET e POST para avaliar blog ===
+        [HttpGet]
+        public async Task<IActionResult> EvaluateBlog(int id)
+        {
+            var blog = await _blogRepository.FindByIdAsync(id);
+
+            if (blog == null) return NotFound();
+
+            var viewModel = new AvaliacaoBlogViewModel()
+            {
+                BlogId = blog.BlogId,
+                NomeBlog = blog.Nome
+            };
+            return PartialView("_EvaluateBlogPartial", viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EvaluateBlog(AvaliacaoBlogViewModel viewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                await _blogRepository.EvaluateBlogAsync(viewModel.BlogId, _userManager.GetUserId(User), viewModel.Nota.Value);
+                return Ok();
+            }
+            return BadRequest(ModelState);
+        }
 
         // Alterar o visual de details para ficar mais amigavel
         // Funcionalidade de Postagem e comentário --> bem longa

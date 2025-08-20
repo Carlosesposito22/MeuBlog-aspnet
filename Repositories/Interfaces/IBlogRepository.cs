@@ -13,5 +13,7 @@
         Task UpdateBlogAsync(int id, Models.Blog blog);
 
         Task SubscribeUserAsync(int blogId, string userId);
+
+        Task EvaluateBlogAsync(int blogId, string userId, int nota);
     }
 }

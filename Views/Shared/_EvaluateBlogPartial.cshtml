@@ -1,0 +1,69 @@
+﻿@model AvaliacaoBlogViewModel
+
+<div class="modal fade" id="evaluateModal" tabindex="-1" aria-labelledby="evaluateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="evaluateModalLabel">Avaliar blog</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formAvaliacao" asp-controller="Blog" asp-action="EvaluateBlog" method="post">
+
+                <input type="hidden" asp-for="BlogId" />
+
+                <div class="modal-body">
+                    <p>Qual sua nota para o blog: <strong>@Model.NomeBlog</strong></p>
+
+                    <div class="form-group">
+                        <label asp-for="Nota"></label>
+                        <input type="number" asp-for="Nota" class="form-control" />
+                        <span asp-validation-for="Nota" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Avaliação</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('formAvaliacao');
+        if (form) {
+            form.addEventListener('submit', function (event) {
+                // 1. Impedir o envio tradicional do formulário (que recarrega a página)
+                event.preventDefault();
+
+                // 2. Coletar os dados do formulário
+                const formData = new FormData(form);
+
+                // 4. Enviar os dados com a API fetch
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    // 5. Lidar com a resposta do servidor
+                    if (response.ok) {
+                        // Sucesso (status 200-299)
+                        // Esconder o modal
+                        var modalElement = document.getElementById('evaluateModal');
+                        var modalInstance = bootstrap.Modal.getInstance(modalElement);
+                        modalInstance.hide();
+
+                    } else {
+                        // Erro (ex: BadRequest 400 com erros de validação)
+                        alert('Ocorreu um erro. Verifique a nota informada.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro na requisição:', error);
+                    alert('Falha de conexão. Tente novamente.');
+                });
+            });
+        }
+    });
+</script>
