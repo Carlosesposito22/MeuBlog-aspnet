@@ -38,7 +38,7 @@ namespace Blog.Controllers
                 return NotFound();
             }
 
-            float mediaAvaliacao = (blog.Inscritos.Sum(i => i.Avaliacao) / blog.Inscritos.Count);
+            float mediaAvaliacao = (float)(blog.Inscritos.Average(i => i.Avaliacao));
 
             var blogDetailsVM = new BlogDetailsViewModel()
             {
@@ -161,7 +161,8 @@ namespace Blog.Controllers
             return BadRequest(ModelState);
         }
 
-        // Alterar o visual de details para ficar mais amigavel
+        // Entender como esta funcionado o EvalueteBlog --> by: 20/08/25
+
         // Funcionalidade de Postagem e comentário --> bem longa
 
         private bool IsUserSubscribe(List<InscricaoBlog> inscricoes)

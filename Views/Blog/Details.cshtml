@@ -1,182 +1,41 @@
 ﻿@model BlogDetailsViewModel
-@using System.Text.Json; 
 
-<style>
-    .blog-header {
-        background-color: #f8f9fa; 
-    }
+<div class="container my-4">
 
-    .stat-item i {
-        font-size: 1.5rem; 
-    }
+    <header class="p-5 mb-4 rounded-3 blog-header position-relative" style="background-color: #f8f9fa">
 
-    .post-card {
-        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    }
+        @if (Model.IsUserAdmin)
+        {
+            <a asp-action="EditBlog" asp-route-id="@Model.BlogId" class="btn btn-primary position-absolute top-0 end-0 m-3">
+                <i class="fa-solid fa-pencil me-2"></i>Editar Blog
+            </a>
+        }
 
-    .post-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    }
-    
-    [v-cloak] {
-        display: none;
-    }
-</style>
+        <div class="container-fluid py-4 text-center">
+            <h1 class="display-4 fw-bold">@Model.Nome</h1>
+            <p class="fs-5 col-md-10 mx-auto">@Model.Descricao</p>
+            <p class="text-muted">Criado em: @Model.Criacao.ToString("dd/MM/yyyy")</p>
+        </div>
 
-<div id="vue-blog-details" v-cloak>
-    <div class="container my-4">
-
-        <header class="p-5 mb-4 rounded-3 blog-header position-relative">
-            @if (@Model.IsUserAdmin)
-            {
-                <a asp-action="EditBlog" asp-route-id="@Model.BlogId" class="btn btn-primary position-absolute top-0 end-0 m-3">
-                    <i class="fa-solid fa-pencil me-2"></i>Editar Blog</a>   
-            }
-
-            <div class="container-fluid py-4 text-center">
-                <h1 class="display-4 fw-bold">{{ blog.nome }}</h1>
-                <p class="fs-5 col-md-10 mx-auto">{{ blog.descricao }}</p>
-                <p class="text-muted">Criado em: {{ formatFullDate(blog.criacao) }}</p>
+        <div class="d-flex justify-content-center align-items-center gap-5 border-top pt-4">
+            <div class="stat-item d-flex align-items-center gap-2 text-muted" style="font-size: 1.5rem">
+                <i class="fa-solid fa-star text-warning"></i>
+                <span class="fs-5 fw-semibold">@Model.MediaDeAvaliacao.ToString("0.0")</span>
             </div>
-
-            <div class="d-flex justify-content-center align-items-center gap-5 border-top pt-4">
-                <div class="stat-item d-flex align-items-center gap-2 text-muted">
-                    <i class="fa-solid fa-star text-warning"></i>
-                    <span class="fs-5 fw-semibold">{{ blog.mediaDeAvaliacao.toFixed(1) }}</span>
-                </div>
-                <div class="stat-item d-flex align-items-center gap-2 text-muted">
-                    <i class="fa-solid fa-users text-info"></i>
-                    <span class="fs-5 fw-semibold">{{ blog.quantidadeInscritos }} Inscritos</span>
-                </div>
-                <button @@click="abrirModalAvaliacao" class="btn btn-outline-success">
-                    <i class="fa-solid fa-pen-to-square me-2"></i>Avaliar Blog
-                </button>
+            <div class="stat-item d-flex align-items-center gap-2 text-muted" style="font-size: 1.5rem">
+                <i class="fa-solid fa-users text-info"></i>
+                <span class="fs-5 fw-semibold">@Model.QuantidadeInscritos Inscritos</span>
             </div>
-        </header>
-    </div>
+            <button type="button" class="btn btn-success js-open-evaluate-modal" data-blog-id="@Model.BlogId">
+                <i class="fa-solid fa-pen-to-square me-2"></i>Avaliar Blog
+            </button>
+        </div>
+    </header>
 
-    <div id="modal-container"></div>
 </div>
 
+<div id="modal-placeholder"></div>
+
 @section Scripts {
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-
-    <script>
-        const blogData = @Html.Raw(JsonSerializer.Serialize(new {
-            BlogId = Model.BlogId,
-            Nome = Model.Nome,
-            Descricao = Model.Descricao,
-            Criacao = Model.Criacao,
-            MediaDeAvaliacao = Model.MediaDeAvaliacao,
-            QuantidadeInscritos = Model.QuantidadeInscritos,
-            Postagens = Model.Postagens?.Select(p => new {
-                p.PostagemId,
-                p.Titulo,
-                p.Conteudo,
-                p.DataPublicacao
-            }) ?? Enumerable.Empty<object>()
-        }));
-        
-        const isUserAdmin = @Json.Serialize(Model.IsUserAdmin);
-
-        const app = Vue.createApp({
-            data() {
-                return {
-                    blog: {
-                        blogId: blogData.BlogId,
-                        nome: blogData.Nome,
-                        descricao: blogData.Descricao,
-                        criacao: blogData.Criacao,
-                        mediaDeAvaliacao: blogData.MediaDeAvaliacao,
-                        quantidadeInscritos: blogData.QuantidadeInscritos,
-                        postagens: blogData.Postagens
-                    },
-                    isUserAdmin: isUserAdmin
-                }
-            },
-            methods: {
-                formatFullDate(dateString) {
-                    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-                    return new Date(dateString).toLocaleDateString('pt-BR', options);
-                },
-                formatSimpleDate(dateString) {
-                    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-                    return new Date(dateString).toLocaleDateString('pt-BR', options);
-                },
-                truncateText(text, length) {
-                    if (!text || text.length <= length) {
-                        return text;
-                    }
-                    return text.substring(0, length) + '...';
-                },
-                async abrirModalAvaliacao() {
-                    try {
-                        // 1. Monta a URL para a action GET, usando o ID do blog que já temos
-                        const url = `/Blog/EvaluateBlog/${this.blog.blogId}`;
-
-                        // 2. Faz a chamada fetch para buscar o HTML da PartialView
-                        const response = await fetch(url);
-                        if (!response.ok) {
-                            throw new Error('Falha ao carregar o modal de avaliação.');
-                        }
-                        const modalHtml = await response.text();
-
-                        // 3. Injeta o HTML retornado no nosso contêiner
-                        const modalContainer = document.getElementById('modal-container');
-                        modalContainer.innerHTML = modalHtml;
-
-                        // 4. Inicializa e exibe o modal do Bootstrap
-                        const modalElement = document.getElementById('evaluateModal'); // ID do modal na sua PartialView
-                        const bootstrapModal = new bootstrap.Modal(modalElement);
-                        bootstrapModal.show();
-
-                        // 5. IMPORTANTE: Configura o envio AJAX do formulário que acabamos de carregar
-                        this.configurarFormularioAvaliacao(bootstrapModal);
-
-                    } catch (error) {
-                        console.error('Erro ao abrir modal de avaliação:', error);
-                        alert('Não foi possível abrir a janela de avaliação. Tente novamente.');
-                    }
-                },
-                
-                // Método auxiliar para lidar com o envio do formulário do modal
-                configurarFormularioAvaliacao(bootstrapModal) {
-                    const form = document.getElementById('formAvaliacao'); // ID do form na sua PartialView
-                    if (!form) return;
-
-                    form.addEventListener('submit', async (event) => {
-                        event.preventDefault(); // Impede o recarregamento da página
-
-                        const formData = new FormData(form);
-                        const token = formData.get('__RequestVerificationToken');
-
-                        try {
-                            const response = await fetch(form.action, {
-                                method: 'POST',
-                                body: formData,
-                                headers: { 'RequestVerificationToken': token }
-                            });
-
-                            if (response.ok) {
-                                bootstrapModal.hide(); // Fecha o modal
-                                alert('Obrigado por avaliar!');
-                                // Idealmente, aqui você faria uma chamada para atualizar a média de
-                                // avaliação na tela, ou simplesmente daria um window.location.reload() se preferir
-                            } else {
-                                // Se houver erros de validação, o servidor retorna 400 (Bad Request)
-                                alert('Erro na validação. A nota deve ser entre 0 e 5.');
-                            }
-                        } catch (error) {
-                            console.error('Erro ao enviar avaliação:', error);
-                            alert('Falha ao enviar sua avaliação. Verifique sua conexão.');
-                        }
-                    });
-                }
-
-            }
-        });
-
-        app.mount('#vue-blog-details');
-    </script>
+    <script src="~/js/evaluateModal.js"></script>
 }
