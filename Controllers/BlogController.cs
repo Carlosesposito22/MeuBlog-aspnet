@@ -49,8 +49,9 @@ namespace Blog.Controllers
                 MediaDeAvaliacao = mediaAvaliacao,
                 QuantidadeInscritos = blog.Inscritos.Count,
                 Postagens = blog.Postagens,
-                InscricaoBlogs = blog.Inscritos
-            };
+                InscricaoBlogs = blog.Inscritos,
+                IsUserAdmin = IsUserAdmin(blog)
+            }; 
             return View(blogDetailsVM);
         }
 
@@ -81,7 +82,7 @@ namespace Blog.Controllers
         {
             var blog = await _blogRepository.FindByIdAsync(id);
 
-            if ((blog == null) || (blog.Admin.Id != _userManager.GetUserId(User)))
+            if (!IsUserAdmin(blog))
             {
                 return NotFound();
             }
@@ -133,9 +134,27 @@ namespace Blog.Controllers
             return RedirectToAction("Details", new { id });
         }
 
+        // === GET e POST para avaliar blog ===
+
+        // Alterar o visual de details para ficar mais amigavel
+        // Funcionalidade de Postagem e comentário --> bem longa
+
         private bool IsUserSubscribe(List<InscricaoBlog> inscricoes)
         {
             return (inscricoes.FirstOrDefault(i => i.UserId == _userManager.GetUserId(User)) != null);
+        }
+
+        private bool IsUserAdmin(Models.Blog blog)
+        {
+            if (blog == null)
+            {
+                return false;
+            }
+            if (blog.Admin.Id != _userManager.GetUserId(User))
+            {
+                return false;
+            }
+            return true;
         }
     }
 }

@@ -11,6 +11,7 @@ namespace Blog.ViewModels
         public string AdminId { get; set; }
         public float MediaDeAvaliacao { get; set; }
         public int QuantidadeInscritos { get; set; }
+        public bool IsUserAdmin { get; set; }
 
         public IEnumerable<Postagem> Postagens { get; set; }
         public IEnumerable<InscricaoBlog> InscricaoBlogs { get; set; }

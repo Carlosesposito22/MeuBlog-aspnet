@@ -35,6 +35,7 @@ namespace Blog.Repositories
             return await _context.Blogs
                 .Include(b => b.Postagens)
                 .Include(b => b.Inscritos)
+                .Include(b => b.Admin)
                 .FirstOrDefaultAsync(b => b.BlogId == id);
         }
 

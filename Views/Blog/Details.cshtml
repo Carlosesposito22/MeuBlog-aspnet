@@ -1,15 +1,141 @@
 ﻿@model BlogDetailsViewModel
-@inject UserManager<User> UserManager
+@using System.Text.Json; 
 
-<div>Teste de Blog Details</div>
+<style>
+    .blog-header {
+        background-color: #f8f9fa; 
+    }
 
-<h1>@Model.Nome</h1>
-<h1>@Model.Descricao</h1>
-<h1>@Model.Criacao</h1>
-<h1>@Model.MediaDeAvaliacao</h1>
-<h1>@Model.QuantidadeInscritos</h1>
+    .stat-item i {
+        font-size: 1.5rem; 
+    }
 
-@if (Model.AdminId == UserManager.GetUserId(User))
-{
-    <a class="btn btn-outline-danger" asp-action="EditBlog" asp-route-id="@Model.BlogId">Editar</a>
+    .post-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+
+    .post-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    [v-cloak] {
+        display: none;
+    }
+</style>
+
+<div id="vue-blog-details" v-cloak>
+    <div class="container my-4">
+
+        <header class="p-5 mb-4 rounded-3 blog-header position-relative">
+            @if (@Model.IsUserAdmin)
+            {
+                <a asp-action="EditBlog" asp-route-id="@Model.BlogId" class="btn btn-primary position-absolute top-0 end-0 m-3">
+                    <i class="fa-solid fa-pencil me-2"></i>Editar Blog</a>   
+            }
+
+            <div class="container-fluid py-4 text-center">
+                <h1 class="display-4 fw-bold">{{ blog.nome }}</h1>
+                <p class="fs-5 col-md-10 mx-auto">{{ blog.descricao }}</p>
+                <p class="text-muted">Criado em: {{ formatFullDate(blog.criacao) }}</p>
+            </div>
+
+            <div class="d-flex justify-content-center align-items-center gap-5 border-top pt-4">
+                <div class="stat-item d-flex align-items-center gap-2 text-muted">
+                    <i class="fa-solid fa-star text-warning"></i>
+                    <span class="fs-5 fw-semibold">{{ blog.mediaDeAvaliacao.toFixed(1) }}</span>
+                </div>
+                <div class="stat-item d-flex align-items-center gap-2 text-muted">
+                    <i class="fa-solid fa-users text-info"></i>
+                    <span class="fs-5 fw-semibold">{{ blog.quantidadeInscritos }} Inscritos</span>
+                </div>
+            </div>
+        </header>
+
+        <!--
+        <main>
+            <h2 class="pb-2 border-bottom mb-4">Últimas Postagens</h2>
+
+            <div v-if="blog.postagens && blog.postagens.length > 0" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                <div v-for="postagem in blog.postagens" :key="postagem.postagemId" class="col">
+                    <div class="card h-100 shadow-sm post-card">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fs-4">{{ postagem.titulo }}</h5>
+                            <small class="text-muted mb-2">{{ formatSimpleDate(postagem.dataCriacao) }}</small>
+                            <p class="card-text flex-grow-1">
+                                {{ truncateText(postagem.conteudo, 150) }}
+                            </p>
+                            <a :href="'/Postagem/Details/' + postagem.postagemId" class="btn btn-outline-primary align-self-start">
+                                Ler mais <i class="fa-solid fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div v-else class="text-center p-5 bg-light rounded-3">
+                <h3 class="text-muted">Nenhuma postagem encontrada.</h3>
+                <p>Este blog ainda não tem nenhuma publicação. Volte em breve!</p>
+            </div>
+        </main>
+        -->
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <script>
+        const blogData = @Html.Raw(JsonSerializer.Serialize(new {
+            BlogId = Model.BlogId,
+            Nome = Model.Nome,
+            Descricao = Model.Descricao,
+            Criacao = Model.Criacao,
+            MediaDeAvaliacao = Model.MediaDeAvaliacao,
+            QuantidadeInscritos = Model.QuantidadeInscritos,
+            Postagens = Model.Postagens?.Select(p => new {
+                p.PostagemId,
+                p.Titulo,
+                p.Conteudo,
+                p.DataPublicacao
+            }) ?? Enumerable.Empty<object>()
+        }));
+        
+        const isUserAdmin = @Json.Serialize(Model.IsUserAdmin);
+
+        const app = Vue.createApp({
+            data() {
+                return {
+                    blog: {
+                        blogId: blogData.BlogId,
+                        nome: blogData.Nome,
+                        descricao: blogData.Descricao,
+                        criacao: blogData.Criacao,
+                        mediaDeAvaliacao: blogData.MediaDeAvaliacao,
+                        quantidadeInscritos: blogData.QuantidadeInscritos,
+                        postagens: blogData.Postagens
+                    },
+                    isUserAdmin: isUserAdmin
+                }
+            },
+            methods: {
+                formatFullDate(dateString) {
+                    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                    return new Date(dateString).toLocaleDateString('pt-BR', options);
+                },
+                formatSimpleDate(dateString) {
+                    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+                    return new Date(dateString).toLocaleDateString('pt-BR', options);
+                },
+                truncateText(text, length) {
+                    if (!text || text.length <= length) {
+                        return text;
+                    }
+                    return text.substring(0, length) + '...';
+                }
+            }
+        });
+
+        app.mount('#vue-blog-details');
+    </script>
 }
